@@ -20,14 +20,14 @@ os.chdir(PATH + "\\" + DIRNAME2)
 for root, dirs, files in os.walk(".", topdown = False):
 	for name in files:
 		path_to_file = os.path.join(root, name)
-		path_list.append(path_to_file)
 		if path_to_file.endswith(".txt"):
 			print(path_to_file + " text: ")
 			with open(path_to_file, "r", encoding='utf-8') as file:
 				text = file.read()
 				print(text)
 				text_list.append(text)
-
+				path_list.append(path_to_file)
+				
 
 text_list = [line.rstrip() for line in text_list]
 #print(path_list, text_list)
