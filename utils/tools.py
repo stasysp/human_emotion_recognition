@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+import os
+from shutil import copy
 from os import listdir
 from os.path import isfile, join
 import csv
@@ -12,6 +14,40 @@ labels = [
         'speech',
         'unknown',
         ]
+
+def get_dirs_tree(path_to_destination_dataset):
+    dir_names = labels
+    for name_dir in ['\\train', '\\val']:
+        path_to_main_dirs = path_to_destination_dataset + name_dir
+        try:
+            os.makedirs(path_to_main_dirs)
+        except OSError:
+            print ("Directory %s already exist" % path_to_main_dirs)
+        else:
+            print ("Successfully created the directory %s" % path_to_main_dirs)
+        for name_dir_emotions in dir_names:
+            path_to_inner_dirs = path_to_main_dirs + "\\" + name_dir_emotions
+            try:
+                os.makedirs(path_to_inner_dirs)
+            except OSError:
+                print ("Directory %s already exist" % path_to_inner_dirs)
+            else:
+                print ("Successfully created the directory %s" % path_to_inner_dirs)
+    
+
+def get_train_val(path_to_csv, path_to_dataset, path_to_destination_dataset):
+    df = pd.read_csv(path_to_csv, encoding="Windows-1251")
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    get_dirs_tree(path_to_destination_dataset)
+    for index, row in df.iterrows():
+        path_to_txt = path_to_dataset + row['path'][2:]
+        if (index > 10): break
+    
+        main_dir = '\\val' if index % 3 == 0 else '\\train'
+        dest_file_path = path_to_destination_dataset + main_dir + "\\" + row['emotions'] + "\\"
+        #print(row['emotions'], dest_file_path)
+        copy(path_to_txt, dest_file_path)
+
 
 def get_stat_from_initial_results(path_to_files):
 
