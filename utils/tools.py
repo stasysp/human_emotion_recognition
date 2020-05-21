@@ -4,7 +4,7 @@ import os
 from shutil import copy
 from os import listdir
 from os.path import isfile, join
-import csv
+from PIL import Image
 
 labels = [
         'positive',
@@ -14,6 +14,36 @@ labels = [
         'speech',
         'unknown',
         ]
+
+def get_files(path):
+    return [f for f in listdir(path) if isfile(join(path, f))]
+
+def get_white_pix_numb(image):
+    w, h = image.size
+    pix = np.array(image)
+    for y in range(5, h):
+        for x in range(5, w):
+          if np.array_equal(pix[y, x], [255, 255, 255, 255]):
+              return x
+    return -1
+
+def crop_images(path_to_data):
+    main_dirs = ['train', 'val']
+    # path_to_data = "/content/gdrive/My Drive/Research/dataset_train_val_10000"
+    for dir_ in main_dirs:
+        for emotion in labels:
+            path_to_folder = path_to_data + '/' + dir_ + '/' + emotion + '/'
+            list_of_png = get_files(path_to_folder)
+            for png in list_of_png:
+                img = Image.open(path_to_folder + png)
+                width, height = img.size
+                right = get_white_pix_numb(img) 
+
+                if right == -1: 
+                    continue
+
+                img = img.crop((0, 0, right, height))
+                img.save(path_to_folder + png)
 
 def get_dirs_tree(path_to_destination_dataset):
     dir_names = labels
